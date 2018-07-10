@@ -48,26 +48,25 @@ avaliacoes %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
   geom_point()
 
-#TODO: MODIFICAR
-
-#ROTACIONAR LABELS, TRAÇAR MELHOR OS VALORES
 
 #mostra número de revisores por reclamação
 avaliacoes %>% group_by(id) %>% 
   summarize(count=n()) %>% 
-  ggplot(aes(x=reorder(id, count), y=count)) + geom_bar(stat = "identity")
+  ggplot(aes(x=reorder(id, count), y=count)) + labs(x = 'ID da Reclamação') + geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  scale_y_continuous(name ='Número de revisores', breaks = 1:7)
 
 
 
-#TRANSFORMAR EM GRAFICO DE BARRAS
 # a maioria das avaliações tem nível de discordância de 1 e 2
-avaliacoes %>% group_by(id) %>% 
+n = avaliacoes %>% group_by(id) %>% 
   summarise(range = max(insatisfacao) - min(insatisfacao),
             mediana = median(insatisfacao)) %>% 
-  group_by(range) %>% count() 
+  group_by(range) %>% count()
 
-#TODO: MODIFICAR
-
+names(n)[names(n) == "range"] <- "Discrepância"
+names(n)[names(n) == "n"] <- "Quantidade"
+n
 
 avaliacoes %>% group_by(id) %>% 
   summarise(range = max(insatisfacao) - min(insatisfacao)) %>% 
