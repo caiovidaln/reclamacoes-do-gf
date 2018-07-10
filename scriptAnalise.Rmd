@@ -15,7 +15,8 @@ theme_set(theme_bw())
 setwd("/home/adbysjva/Documentos/reclamacoes-do-gf/")
 
 avaliacoes <- read_csv("data/3-avaliacao-humana/avaliacoes-20180610.csv")
-reclamacoes <-  read_csv("data/1-reclamacoes-selecionadas/reclamacoes-avaliadas.csv")
+reclamacoes <-  read_csv(here("data/3-avaliacao-humana/reclamacoes-avaliadas-20180703.csv"))
+
 
 #inserindo colunas comprimento da reclamacao e do titulo
 reclamacoes <- reclamacoes %>% mutate(reclamacao.length = str_length(reclamacao),
@@ -24,9 +25,7 @@ reclamacoes <- reclamacoes %>% mutate(reclamacao.length = str_length(reclamacao)
 # insere coluna com número de letras em capslock
 reclamacoes$numero.de.capslock <- str_count(reclamacoes$reclamacao, "\\b[A-Z]{2,}\\b")
 
-
-#Percebemos que as reclamações do INSS são em média menores do que as reclamações da anac
-
+#INSERE A GRAU DE INSATISFAÇÃO
 avaliacoes <- avaliacoes %>% 
               select(avaliador = `Matricula`, 
                       id = `ID da reclamação`, 
@@ -49,52 +48,26 @@ avaliacoes %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
   geom_point()
 
+#TODO: MODIFICAR
 
-# em média, quantas avaliações por reclamação?
-avaliacoes %>% 
-  group_by(id) %>% 
-  count() %>%
-  ungroup() %>% 
-  summarise(media = mean(n), 
-            mediana = median(n))
+#ROTACIONAR LABELS, TRAÇAR MELHOR OS VALORES
 
 #mostra número de revisores por reclamação
 avaliacoes %>% group_by(id) %>% 
   summarize(count=n()) %>% 
   ggplot(aes(x=reorder(id, count), y=count)) + geom_bar(stat = "identity")
 
-# Será que há consenso entre as avaliações de cada reclamação?
-#  níveis de discordância X id da reclamação
-avaliacoes %>% group_by(id) %>% 
-  summarise(range = max(insatisfacao) - min(insatisfacao),
-            mediana = median(insatisfacao)) %>% 
-  ggplot(aes(x=id, y=range, colour = id)) + geom_point() +
-  geom_jitter(height = 0.05, alpha = .4)
 
-# vemos que para algums reclamações houve uma discordância de até 3 níveis de insatisfação
-# níveis de discordância X nível médio de insatisfação
-# não parece haver relação entre essas variáveis
-avaliacoes %>% group_by(id) %>% 
-  summarise(range = max(insatisfacao) - min(insatisfacao),
-            mediana = median(insatisfacao)) %>% 
-  ggplot(aes(x=mediana, y=range)) + geom_point() +
-  geom_jitter(height = 0.05, alpha = .4)
 
+#TRANSFORMAR EM GRAFICO DE BARRAS
 # a maioria das avaliações tem nível de discordância de 1 e 2
 avaliacoes %>% group_by(id) %>% 
   summarise(range = max(insatisfacao) - min(insatisfacao),
             mediana = median(insatisfacao)) %>% 
-  group_by(range) %>% count()
+  group_by(range) %>% count() 
 
-# quantas reclamações tem discordância maior que 2?
-avaliacoes %>% group_by(id) %>% 
-  summarise(range = max(insatisfacao) - min(insatisfacao)) %>% 
-  filter(range > 2) %>% count()
+#TODO: MODIFICAR
 
-# que reclamações são essas?
-avaliacoes %>% group_by(id) %>% 
-  summarise(range = max(insatisfacao) - min(insatisfacao)) %>% 
-  filter(range > 2) %>% inner_join(reclamacoes, by = "id") %>% View()
 
 avaliacoes %>% group_by(id) %>% 
   summarise(range = max(insatisfacao) - min(insatisfacao)) %>% 
@@ -102,23 +75,13 @@ avaliacoes %>% group_by(id) %>%
   ggplot(aes(fill = orgao, x = reclamacao.length), na.rm = TRUE) + 
   geom_histogram(binwidth = 60, na.rm = TRUE) + 
   facet_grid(orgao ~ .)
-# o que fazer com essas reclamações?
-  
 
-# Já vimos que as reclamações da ANAC são maiores. Outra forma de ver é através de boxplots
-reclamacoes %>% group_by(orgao) %>% 
-  ggplot(aes(x=reorder(orgao, reclamacao.length), y=reclamacao.length)) + geom_boxplot()
 
 ## Será que os tamanhos das reclamações ou títulos tem alguma relação com o nível de insatisfação?
-reclamacoes %>% ggplot(aes(x=mediana, y=reclamacao.length)) + geom_point()
-reclamacoes %>% ggplot(aes(x=mediana, y=numero.de.capslock)) + geom_point()
-reclamacoes %>% ggplot(aes(x=mediana, y=titulo.length)) + geom_point()
+reclamacoes %>% ggplot(aes(x=insatisfacao, y=reclamacao.length)) + geom_point()
+reclamacoes %>% ggplot(aes(x=insatisfacao, y=numero.de.capslock)) + geom_point()
+reclamacoes %>% ggplot(aes(x=insatisfacao, y=titulo.length)) + geom_point()
 
-# Olhando as variáveis não encontramos relações fortes entre elas
-library(GGally)
-reclamacoes %>% 
-  select(orgao, titulo.length, reclamacao.length, numero.de.capslock, mediana) %>% 
-ggpairs()
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
