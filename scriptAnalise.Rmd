@@ -81,6 +81,18 @@ reclamacoes %>% ggplot(aes(x=insatisfacao, y=reclamacao.length)) + geom_point()
 reclamacoes %>% ggplot(aes(x=insatisfacao, y=numero.de.capslock)) + geom_point()
 reclamacoes %>% ggplot(aes(x=insatisfacao, y=titulo.length)) + geom_point()
 
+a = lm(insatisfacao ~ numero.de.capslock, data = reclamacoes)
+
+summary(a)
+
+b = lm(insatisfacao ~ reclamacao.length, data = reclamacoes)
+
+summary(b)
+
+
+i = 0.00058(tam) + 2.4367
+
+
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.

@@ -28,23 +28,34 @@ reclamacoes = reclamacoes %>% mutate(comprimento_reclamacao = str_length(reclama
 reclamacoes = reclamacoes %>% 
     left_join(sentimentos, by = "id")
 
+reclamacoes_aval_aleat = reclamacoes %>% select(insatisfacao)
+
 reclamacoes_l = reclamacoes %>%  
     select(-palavras_op30, -palavras_sent, -grupo_avaliando) %>% 
     gather(key = "lexico", 
            value = "polaridade", 
            sentimento_op30, sentimento_sent)
 
-reclamacoes_l %>% View()
+
 
 ```
 
 Converte polaridades para escala 0-5
 
 ```{r}
+
+
+
+reclamacoes_aval_aleat = reclamacoes_aval_aleat %>% 
+    mutate(avaliacao_aleatoria = sample(1:5, 60, replace=T))
+
 # Faça você mesmo. Crie a variável polaridade_normalizada
  reclamacoes_l = reclamacoes_l %>% 
      group_by(lexico) %>% 
      mutate(polaridade_normalizada = round((polaridade - min(polaridade)) / max(polaridade - min(polaridade)) * (1 - 5) + 5), digits = 0)
+
+
+
 ```
 
 Calcula o erro (SSE) por reclamação
@@ -52,6 +63,23 @@ Calcula o erro (SSE) por reclamação
 ```{r}
 reclamacoes_l = reclamacoes_l %>% 
     mutate(erro = (insatisfacao - polaridade_normalizada)**2)
+
+reclamacoes_aval_aleat = reclamacoes_aval_aleat %>% 
+    mutate(erro_aleatorio = (insatisfacao - avaliacao_aleatoria)**2)
+
+
+rmse_sent = reclamacoes_l %>% filter(lexico == 'sentimento_sent') %>% subset(select =  erro) %>% sum()
+
+rmse_sent = sqrt(rmse_sent)
+
+rmse_op = reclamacoes_l %>% filter(lexico == 'sentimento_op30') %>% subset(select =  erro) %>% sum()
+
+rmse_op = sqrt(rmse_op)
+
+rmse_al = reclamacoes_aval_aleat %>% select(erro_aleatorio) %>% sum()
+
+rmse_al = sqrt(rmse_al)
+
 ```
 
 
