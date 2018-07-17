@@ -70,15 +70,15 @@ reclamacoes_aval_aleat = reclamacoes_aval_aleat %>%
 
 rmse_sent = reclamacoes_l %>% filter(lexico == 'sentimento_sent') %>% subset(select =  erro) %>% sum()
 
-rmse_sent = sqrt(rmse_sent)
+rmse_sent = sqrt(rmse_sent/60)
 
 rmse_op = reclamacoes_l %>% filter(lexico == 'sentimento_op30') %>% subset(select =  erro) %>% sum()
 
-rmse_op = sqrt(rmse_op)
+rmse_op = sqrt(rmse_op/60)
 
 rmse_al = reclamacoes_aval_aleat %>% select(erro_aleatorio) %>% sum()
 
-rmse_al = sqrt(rmse_al)
+rmse_al = sqrt(rmse_al/60)
 
 ```
 
